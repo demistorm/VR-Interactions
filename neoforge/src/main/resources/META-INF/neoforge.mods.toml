@@ -1,0 +1,37 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "demistorm_template"
+version = "${version}"
+displayName = "Demistorm Template"
+authors = "demistorm"
+description = '''
+Architectury multi-loader mixin template for Minecraft 1.21.11.
+'''
+
+[[mixins]]
+config = "demistorm_template.mixins.json"
+
+[[dependencies.demistorm_template]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[${neoforge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.demistorm_template]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${minecraft_version}]"
+ordering = "NONE"
+side = "BOTH"
+
+# Optional Vivecraft Dependency
+[[dependencies.demistorm_template]]
+modId = "vivecraft"
+mandatory = false
+versionRange = "[1.3.3,)"
+ordering = "NONE"
+side = "BOTH"
