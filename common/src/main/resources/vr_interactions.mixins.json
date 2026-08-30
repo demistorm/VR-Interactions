@@ -1,14 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "win.demistorm.template.mixin",
+  "package": "win.demistorm.vr_interactions.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "PlayerMixin"
-  ],
-  "client": [
-    "MinecraftMixin"
-  ],
+  "mixins": [],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1

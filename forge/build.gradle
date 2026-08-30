@@ -1,4 +1,4 @@
-// Forge module build configuration for Demistorm Template
+// Forge module build configuration for VR Interactions
 // This module contains Forge-specific implementations and runtime dependencies
 // All common logic is in the common module - this just handles Forge integration
 
@@ -20,7 +20,7 @@ base {
 
 loom {
     forge {
-        mixinConfig "demistorm_template.mixins.json"
+        mixinConfig "vr_interactions.mixins.json"
     }
 }
 
@@ -49,8 +49,7 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     // Vivecraft (Forge)
-    // modApi "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-forge"
-}
+    // modApi "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-forge"}
 
 // Process resources and expand version placeholders
 processResources {

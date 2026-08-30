@@ -1,4 +1,4 @@
-// NeoForge module build configuration for Demistorm Template
+// NeoForge module build configuration for VR Interactions
 // This module contains NeoForge-specific implementations and runtime dependencies
 // All common logic is in the common module - this just handles NeoForge integration
 
@@ -27,10 +27,17 @@ repositories {
 // Loom configuration for the NeoForge module
 loom {
     // Access widener - add if needed in the future
-    // def aw = project(":common").file("src/main/resources/demistorm_template.accesswidener")
+    // def aw = project(":common").file("src/main/resources/vr_interactions.accesswidener")
     // if (aw.exists()) {
     //     accessWidenerPath.set(aw)
     // }
+
+    mods {
+        vr_interactions {
+            sourceSet sourceSets.main
+            sourceSet project(":common").sourceSets.main
+        }
+    }
 }
 
 configurations {
@@ -52,8 +59,14 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    // Vivecraft (NeoForge)
-    // implementation "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-neoforge"
+    // Vivecraft (NeoForge, optional at runtime)
+    implementation "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-neoforge"
+
+    // Vivecraft runtime deps
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-linux"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-windows"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-macos"
 }
 
 // Process resources and expand version placeholders

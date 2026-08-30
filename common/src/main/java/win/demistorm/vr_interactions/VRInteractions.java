@@ -1,13 +1,13 @@
-package win.demistorm.template;
+package win.demistorm.vr_interactions;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
-public final class DemistormTemplate {
-    public static final String MOD_ID = "demistorm_template";
-    public static final Logger LOGGER = LogManager.getLogger(DemistormTemplate.class);
+public final class VRInteractions {
+    public static final String MOD_ID = "vr_interactions";
+    public static final Logger LOGGER = LogManager.getLogger(VRInteractions.class);
 
     public static final boolean debugMode = false;
 
@@ -16,6 +16,6 @@ public final class DemistormTemplate {
     }
 
     public static void initialize() {
-        LOGGER.info("Demistorm Template loaded!");
+        LOGGER.info("VR Interactions loaded!");
     }
 }

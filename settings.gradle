@@ -7,7 +7,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'demistorm_template'
+rootProject.name = 'vr_interactions'
 
 include 'common'
 

@@ -1,4 +1,4 @@
-package win.demistorm.template.client;
+package win.demistorm.vr_interactions.client;
 
 public final class VivecraftGate {
 

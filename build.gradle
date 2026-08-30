@@ -1,4 +1,4 @@
-// Root build configuration for multi-loader Demistorm Template
+// Root build configuration for multi-loader VR Interactions
 // This file sets up Architectury Loom to build for Fabric, Forge, and NeoForge
 // Each loader gets its own subproject (fabric/, forge/, neoforge/) with common code in common/
 

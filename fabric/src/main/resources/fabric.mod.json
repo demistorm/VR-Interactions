@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "demistorm_template",
+	"id": "vr_interactions",
 	"version": "${version}",
-	"name": "Demistorm Template",
-	"description": "Architectury multi-loader mixin template for Minecraft 1.21.11.",
+	"name": "VR Interactions",
+	"description": "A collection of various enhancements to the core gameplay of VR Minecraft.",
 	"authors": [
 		"demistorm"
 	],
@@ -15,10 +15,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"win.demistorm.template.fabric.DemistormTemplateFabric"
+			"win.demistorm.vr_interactions.fabric.VRInteractionsFabric"
 		],
 		"client": [
-			"win.demistorm.template.fabric.client.FabricClient"
+			"win.demistorm.vr_interactions.fabric.client.FabricClient"
 		]
 	},
 	"depends": {
@@ -31,7 +31,7 @@
 		"vivecraft": ">=1.3.3"
 	},
 	"mixins": [
-		"demistorm_template.mixins.json"
+		"vr_interactions.mixins.json"
 	],
 	"suggests": {
 		"modmenu": "*"

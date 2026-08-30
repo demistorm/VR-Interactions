@@ -1,4 +1,4 @@
-// Common module build configuration for Demistorm Template
+// Common module build configuration for VR Interactions
 // This module contains all the shared logic that works across Fabric, Forge, and NeoForge
 // All mod logic goes here - only platform-specific code in loader modules
 
@@ -11,14 +11,15 @@ architectury {
 // Loom configuration for the common module
 loom {
     // Access widener - add if needed in the future
-    // def aw = file("src/main/resources/demistorm_template.accesswidener")
+    // def aw = file("src/main/resources/vr_interactions.accesswidener")
     // if (aw.exists()) {
     //     accessWidenerPath.set(aw)
     // }
 
     // Custom refmap name for mixin remapping
     mixin {
-        defaultRefmapName.set("demistorm_template.refmap.json")
+        useLegacyMixinAp = true
+        defaultRefmapName.set("vr_interactions.refmap.json")
     }
 }
 
@@ -36,8 +37,8 @@ dependencies {
     // IMPORTANT: Do NOT use other Fabric classes in common code - only annotations!
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 
-    // Vivecraft dependency (compileOnly for API access)
-    // modCompileOnly "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-fabric"
+    // Vivecraft dependency
+    modCompileOnly "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-fabric"
 
 }
 

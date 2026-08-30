@@ -1,4 +1,4 @@
-// Fabric module build configuration for Demistorm Template
+// Fabric module build configuration for VR Interactions
 // This module contains Fabric-specific implementations and runtime dependencies
 // All common logic is in the common module - this just handles Fabric integration
 
@@ -21,7 +21,7 @@ base {
 // Loom configuration for the Fabric module
 loom {
     // Access widener - add if needed in the future
-    // def aw = project(":common").file("src/main/resources/demistorm_template.accesswidener")
+    // def aw = project(":common").file("src/main/resources/vr_interactions.accesswidener")
     // if (aw.exists()) {
     //     accessWidenerPath.set(aw)
     // }
@@ -53,11 +53,32 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
 
-    // Vivecraft (Fabric)
-    // modApi "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-fabric"
+    // Vivecraft (Fabric, optional at runtime)
+    modApi "maven.modrinth:vivecraft:${rootProject.minecraft_version}-${rootProject.vivecraft_version}-fabric"
+
+    // Vivecraft runtime deps
+    implementation 'com.electronwill.night-config:toml:3.6.6'
+    implementation 'com.electronwill.night-config:core:3.6.6'
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-linux"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-windows"
+    implementation "org.lwjgl:lwjgl-openvr:3.3.3:natives-macos"
+    implementation "com.illposed.osc:javaosc-core:0.9"
+    implementation "com.github.bhaptics:tact-java:0.1.4"
+    implementation "org.java-websocket:Java-WebSocket:1.5.1"
 
     // Mod Menu integration for Fabric users
-    modCompileOnly "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+    modCompileOnly "maven.modrinth:modmenu:${rootProject.modmenu_version}"
+
+    // Dev runtime additions
+    modLocalRuntime "maven.modrinth:modmenu:${rootProject.modmenu_version}"
+    modLocalRuntime "maven.modrinth:sodium:${rootProject.sodium_version}"
+}
+
+// Extra repos for Vivecraft's dev-time deps (bhaptics lives on jitpack)
+repositories {
+    maven { url = "https://jitpack.io" }
+    mavenCentral()
 }
 
 // Process resources and expand version placeholders

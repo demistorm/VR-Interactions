@@ -3,33 +3,33 @@ loaderVersion = "[1,)"
 license = "GPL-3.0"
 
 [[mods]]
-modId = "demistorm_template"
+modId = "vr_interactions"
 version = "${version}"
-displayName = "Demistorm Template"
+displayName = "VR Interactions"
 authors = "demistorm"
 description = '''
-Architectury multi-loader mixin template for Minecraft 1.21.11.
+A collection of various enhancements to the core gameplay of VR Minecraft.
 '''
 
 [[mixins]]
-config = "demistorm_template.mixins.json"
+config = "vr_interactions.mixins.json"
 
-[[dependencies.demistorm_template]]
+[[dependencies.vr_interactions]]
 modId = "forge"
 mandatory = true
 versionRange = "[${forge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.demistorm_template]]
+[[dependencies.vr_interactions]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[${minecraft_version}]"
 ordering = "NONE"
 side = "BOTH"
 
-# Optional Vivecraft dependency
-[[dependencies.demistorm_template]]
+# Optional Vivecraft Dependency
+[[dependencies.vr_interactions]]
 modId = "vivecraft"
 mandatory = false
 versionRange = "[1.3.3,)"
