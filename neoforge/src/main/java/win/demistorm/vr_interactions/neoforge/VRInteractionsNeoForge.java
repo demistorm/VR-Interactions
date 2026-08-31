@@ -13,6 +13,7 @@ public final class VRInteractionsNeoForge {
         VRInteractions.initialize();
 
         if (FMLEnvironment.getDist().isClient()) {
+            modEventBus.addListener(NeoClient::registerKeyMappings);
             NeoClient.initialize();
         }
 

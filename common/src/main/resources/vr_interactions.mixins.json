@@ -4,7 +4,9 @@
   "package": "win.demistorm.vr_interactions.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": [],
+  "client": [
+    "KeyMappingMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

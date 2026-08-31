@@ -9,7 +9,7 @@ public final class VRInteractions {
     public static final String MOD_ID = "vr_interactions";
     public static final Logger LOGGER = LogManager.getLogger(VRInteractions.class);
 
-    public static final boolean debugMode = false;
+    public static final boolean debugMode = true;
 
     static {
         Configurator.setLevel(MOD_ID, debugMode ? Level.DEBUG : Level.INFO);
