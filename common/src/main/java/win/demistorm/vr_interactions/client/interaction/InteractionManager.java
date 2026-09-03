@@ -158,6 +158,13 @@ public final class InteractionManager {
         stealMainInput = false;
         stealOffhandInput = false;
         currentZones.clear();
+        for (AmbientChecker checker : ambientCheckers) {
+            try {
+                checker.reset();
+            } catch (Throwable t) {
+                log.error("AmbientChecker threw during reset", t);
+            }
+        }
         clearPerfWindow();
     }
 

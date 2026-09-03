@@ -11,6 +11,7 @@ import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.api.data.VRPose;
 import org.vivecraft.api.data.VRPoseHistory;
 import org.vivecraft.api.data.VRBodyPartData;
+import org.vivecraft.client_vr.ClientDataHolderVR;
 
 // Abstraction class so that adding Visor support will (hopefully) be trivial later
 public final class VRAbstraction {
@@ -58,6 +59,23 @@ public final class VRAbstraction {
             return null;
         }
         return Impl.getHeadPos(player);
+    }
+
+    // Get VR player's updated headset yaw/pitch
+    @Nullable
+    public static Float getHeadYaw(Player player) {
+        if (!VivecraftGate.isVivecraftPresent()) {
+            return null;
+        }
+        return Impl.getHeadYaw(player);
+    }
+
+    @Nullable
+    public static Float getHeadPitch(Player player) {
+        if (!VivecraftGate.isVivecraftPresent()) {
+            return null;
+        }
+        return Impl.getHeadPitch(player);
     }
 
     @Nullable
@@ -123,6 +141,14 @@ public final class VRAbstraction {
         }
     }
 
+    // Clamps roomscale movement to the feature specified offset window (used for horse riding and future similar features)
+    public static double applyRidingRoomLock(double window) {
+        if (!VivecraftGate.isVivecraftPresent()) {
+            return -1.0;
+        }
+        return Impl.applyRidingRoomLock(window);
+    }
+
     // Only loaded when Vivecraft is around
     private static final class Impl {
 
@@ -171,6 +197,27 @@ public final class VRAbstraction {
                 return null;
             }
             return pose.getHead().getPos();
+        }
+
+        @Nullable
+        static Float getHeadYaw(Player player) {
+            Vec3 dir = headDir(player);
+            return dir == null ? null : (float) Math.toDegrees(Math.atan2(-dir.x, dir.z));
+        }
+
+        @Nullable
+        static Float getHeadPitch(Player player) {
+            Vec3 dir = headDir(player);
+            return dir == null ? null : (float) Math.toDegrees(Math.asin(-dir.y / dir.length()));
+        }
+
+        @Nullable
+        private static Vec3 headDir(Player player) {
+            VRPose pose = VRAPI.instance().getVRPose(player);
+            if (pose == null || pose.getHead() == null) {
+                return null;
+            }
+            return pose.getHead().getDir();
         }
 
         @Nullable
@@ -224,7 +271,24 @@ public final class VRAbstraction {
 
         static void pulse(InteractionHand hand, float duration, float frequency, float amplitude) {
             VRClientAPI.instance().triggerHapticPulse(
-                    VRBodyPart.fromInteractionHand(hand), duration, frequency, amplitude, 0.0f);
+                VRBodyPart.fromInteractionHand(hand), duration, frequency, amplitude, 0.0f);
+        }
+
+        static double applyRidingRoomLock(double window) {
+            ClientDataHolderVR dh = ClientDataHolderVR.getInstance();
+            if (dh.vrSettings.seated || dh.vrPlayer == null || dh.vrPlayer.vrdata_room_pre == null) {
+                return -1.0;
+            }
+            Vec3 head = dh.vrPlayer.vrdata_room_pre.getHeadPivot();
+            Vec3 anchor = dh.vehicleTracker.Premount_Pos_Room;
+            double dx = head.x - anchor.x;
+            double dz = head.z - anchor.z;
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            if (dist > window) {
+                double excess = (dist - window) / dist;
+                dh.vehicleTracker.Premount_Pos_Room = new Vec3(anchor.x + dx * excess, 0.0, anchor.z + dz * excess);
+            }
+            return dist;
         }
 
         @Nullable

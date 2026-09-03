@@ -4,10 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import win.demistorm.vr_interactions.Platform;
 import win.demistorm.vr_interactions.VRInteractions;
-import win.demistorm.vr_interactions.client.debug.TestZoneInteraction;
+import win.demistorm.vr_interactions.client.feature.horse.HorseRingsFeature;
 import win.demistorm.vr_interactions.client.input.InputStealer;
 import win.demistorm.vr_interactions.client.interaction.InteractionManager;
 import win.demistorm.vr_interactions.client.keybind.InteractBindings;
+import win.demistorm.vr_interactions.client.render.HorseRingsDebugRenderer;
 import win.demistorm.vr_interactions.client.render.ZoneDebugRenderer;
 import win.demistorm.vr_interactions.client.vivecraft.ViveTracker;
 import win.demistorm.vr_interactions.client.vivecraft.VivecraftInput;
@@ -33,10 +34,14 @@ public class VRInteractionsClient {
                 InteractionManager.INSTANCE::stealsMainInput);
         Platform.registerClientTickEvent(ZoneDebugRenderer::tick);
 
+        InteractionManager.INSTANCE.registerAmbient(new HorseRingsFeature());
+        log.info("Horse rings feature registered");
+
         if (VRInteractions.debugMode) {
-            InteractionManager.INSTANCE.register(new TestZoneInteraction());
             InteractionManager.INSTANCE.setPerfLogEnabled(true);
-            log.info("Debug mode on, test zone interaction registered");
+            Platform.registerClientTickEvent(HorseRingsDebugRenderer::tick);
+            log.debug("Debug log level active");
+            log.info("Debug mode on, perf log + horse rings debug renderer registered");
         }
     }
 }

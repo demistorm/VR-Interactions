@@ -8,4 +8,8 @@ public interface AmbientChecker {
     }
 
     void tick(TickContext ctx);
+
+    // Manager reset clears any held state (VR exit, world leave, etc)
+    default void reset() {
+    }
 }

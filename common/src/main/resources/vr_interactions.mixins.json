@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
   "client": [
-    "KeyMappingMixin"
+    "AbstractHorseMixin",
+    "KeyMappingMixin",
+    "LocalPlayerMixin"
   ],
   "server": [],
   "injectors": {

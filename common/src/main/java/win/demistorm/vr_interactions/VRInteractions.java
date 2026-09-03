@@ -12,7 +12,7 @@ public final class VRInteractions {
     public static final boolean debugMode = true;
 
     static {
-        Configurator.setLevel(MOD_ID, debugMode ? Level.DEBUG : Level.INFO);
+        Configurator.setLevel("win.demistorm.vr_interactions", debugMode ? Level.DEBUG : Level.INFO);
     }
 
     public static void initialize() {
