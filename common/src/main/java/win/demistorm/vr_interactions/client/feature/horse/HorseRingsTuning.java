@@ -51,4 +51,26 @@ public final class HorseRingsTuning {
     public static final double RECENTER_MIN_DIFF_DEG = 20.0;    // Divergence that starts a recenter
     public static final double RECENTER_TOLERANCE_DEG = 8.0;    // Divergence that ends it
     public static final double RECENTER_RATE_DEG = 1.2;         // Deg per tick while recentering (speed of recentering)
+
+    // Reins visuals (runs from mouth to hand to hand to mouth)
+    public static final int REIN_SEGMENTS = 13;                 // Segments per rein half (mouth to hand)
+    public static final int BRIDGE_SEGMENTS = 8;                // Segments of reins between halves
+    public static final double ROPE_TOTAL_LENGTH = 3.2;         // Initial loop length (reseed replaces length for better visuals later)
+    public static final double REIN_SLACK_BLOCKS = 0.2;         // Extra rest length per rein half at length reseed (adds nice drooping effect)
+    public static final double BRIDGE_MIN_LENGTH = 0.60;        // Minimum length of reins bridge between active hand(s) (also adds nice drooping effect)
+    public static final double ROPE_MAX_SPEED = 0.25;           // Speed cap in blocks per tick (a yank can't jump the colliders crazy)
+    public static final double ROPE_GRAVITY = 0.06;             // Blocks per tick squared
+    public static final double ROPE_DAMPING = 0.985;            // Velocity saved per tick
+    public static final int ROPE_SUBSTEPS = 5;                  // Improves collision recovery
+    public static final int ROPE_ITERATIONS = 5;                // Relaxation passes per solve repeat
+    public static final double ROPE_FRICTION = 0.15;            // Friction on collision contact
+    public static final double ROPE_RADIUS = 0.07;              // Collision radius around each sim point
+    public static final double ROPE_RENDER_RADIUS = 0.025;      // Rendered tube radius in blocks
+    public static final int ROPE_SIDES = 4;                     // Cross-section sides of the rendered tube (4 = square)
+    public static final int ROPE_SPLINE_SUBDIV = 4;             // Spline rings per sim bit (visually looks nicer)
+    public static final double ROPE_TEX_REPEAT_BLOCKS = 0.14;   // Rope length per full texture tile
+    public static final double GATHER_OFFSET = 0.02;            // Lateral spread between rope anchors in single hand mode
+    public static final double SEED_SAG = 0.25;                 // Reseed default sag point before sim takes over
+    public static final double SEED_LATERAL_PUSH = 0.5;         // Reseed lateral push of reins on either side of neck to avoid halves appearing on a single side of the neck
+    public static final double SEED_BRIDGE_SAG = 0.30;          // Reseed default sag for bridge before sim takes over
 }

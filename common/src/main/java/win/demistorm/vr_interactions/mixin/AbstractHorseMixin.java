@@ -25,7 +25,10 @@ public abstract class AbstractHorseMixin {
             // Head pitch from the pose
             float pitch = rider.getXRot();
             if (rider instanceof Player player) {
-                Float headPitch = VRAbstraction.getHeadPitch(player);
+                Float headPitch = HorseRingsFeature.riddenHeadPitch();
+                if (headPitch == null) {
+                    headPitch = VRAbstraction.getHeadPitch(player);
+                }
                 if (headPitch != null) {
                     pitch = headPitch;
                 }

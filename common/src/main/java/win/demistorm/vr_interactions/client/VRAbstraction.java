@@ -46,6 +46,14 @@ public final class VRAbstraction {
         return Impl.getHandPosTicksAgo(player, hand, ticksBack);
     }
 
+    @Nullable
+    public static Vec3 getRenderHandPos(InteractionHand hand) {
+        if (!VivecraftGate.isVivecraftPresent()) {
+            return null;
+        }
+        return Impl.getRenderHandPos(hand);
+    }
+
     public static double getHandAverageSpeed(Player player, InteractionHand hand, int ticksBack) {
         if (!VivecraftGate.isVivecraftPresent()) {
             return 0.0;
@@ -176,6 +184,11 @@ public final class VRAbstraction {
             } catch (IllegalArgumentException e) {
                 return null;
             }
+        }
+
+        @Nullable
+        static Vec3 getRenderHandPos(InteractionHand hand) {
+            return handPosFromPose(VRClientAPI.instance().getWorldRenderPose(), hand);
         }
 
         static double getHandAverageSpeed(Player player, InteractionHand hand, int ticksBack) {
