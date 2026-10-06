@@ -83,6 +83,11 @@ public final class HorseRingsFeature implements AmbientChecker {
             return;
         }
 
+        if (trackedHorse == null) {
+            // Center view on the horse's forward so a funky rotated mount doesn't get weird
+            VRAbstraction.centerViewOn(horse.getYRot());
+        }
+
         boolean mainFree = player.getMainHandItem().isEmpty();
         boolean offFree = player.getOffhandItem().isEmpty();
         if (isTwoHanded(player.getMainHandItem()) || isTwoHanded(player.getOffhandItem())) {

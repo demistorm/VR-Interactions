@@ -157,6 +157,13 @@ public final class VRAbstraction {
         return Impl.applyRidingRoomLock(window);
     }
 
+    // Snaps the VR view yaw to the given world yaw (mount centering, roomscale and seated)
+    public static void centerViewOn(float yawDeg) {
+        if (VivecraftGate.isVivecraftPresent()) {
+            Impl.centerViewOn(yawDeg);
+        }
+    }
+
     // Only loaded when Vivecraft is around
     private static final class Impl {
 
@@ -302,6 +309,19 @@ public final class VRAbstraction {
                 dh.vehicleTracker.Premount_Pos_Room = new Vec3(anchor.x + dx * excess, 0.0, anchor.z + dz * excess);
             }
             return dist;
+        }
+
+        // Mirrors Vivecraft's VehicleTracker mount snap without needing its vehicleRotation setting
+        static void centerViewOn(float yawDeg) {
+            ClientDataHolderVR dh = ClientDataHolderVR.getInstance();
+            if (!VRClientAPI.instance().isVRActive() || dh.vrPlayer == null
+                    || dh.vrPlayer.vrdata_world_pre == null || dh.vr == null) {
+                return;
+            }
+            float hmdYaw = dh.vrPlayer.vrdata_world_pre.hmd.getYaw();
+            float difference = dh.vrPlayer.rotDiff_Degrees(yawDeg, hmdYaw);
+            dh.vrSettings.worldRotation = (float) (Math.toDegrees(dh.vrPlayer.vrdata_world_pre.rotation_radians) + difference) % 360.0F;
+            dh.vr.seatedRot = dh.vrSettings.worldRotation;
         }
 
         @Nullable
