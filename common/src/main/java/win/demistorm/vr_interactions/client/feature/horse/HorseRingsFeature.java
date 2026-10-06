@@ -116,6 +116,14 @@ public final class HorseRingsFeature implements AmbientChecker {
                 offFree ? ctx.hand(Hand.OFF).pos() : null);
         double roomOffset = VRAbstraction.applyRidingRoomLock(HorseRingsTuning.ROOM_LOCK_WINDOW);
 
+        if (trackedHorse == null) {
+            // Center view on the horse's forward so a funky rotated mount doesn't get weird
+            VRAbstraction.centerViewOn(horse.getYRot());
+            // Reseed the steering anchor and rope on next tick
+            logic.markLateralAnchorStale();
+            visuals.markReseedPending();
+        }
+
         trackedHorse = horse;
         command = cmd;
 

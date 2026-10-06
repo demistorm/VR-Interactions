@@ -22,6 +22,7 @@ public final class HorseRingsLogic {
 
     // Lateral zero anchor (where the rider's hands rest centered)
     private double lateralZero = 0.0;
+    private boolean lateralAnchorStale = false;
 
     // Steering
     private boolean turnEngaged = false;
@@ -87,6 +88,10 @@ public final class HorseRingsLogic {
         command = RideCommand.INACTIVE;
     }
 
+    public void markLateralAnchorStale() {
+        lateralAnchorStale = true;
+    }
+
     public void tick(RideSample sample) {
         if (!active) {
             active = true;
@@ -102,7 +107,15 @@ public final class HorseRingsLogic {
         pushSample(sample);
 
         int events = 0;
-        double lat = anchorLateral();
+        double lat;
+        if (lateralAnchorStale) {
+            lateralZero = lateral(0);
+            needAnchor = false;
+            lateralAnchorStale = false;
+            lat = 0.0;
+        } else {
+            lat = anchorLateral();
+        }
 
         updateZeroAnchor(lat);
 

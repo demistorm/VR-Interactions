@@ -22,6 +22,7 @@ public final class HorseRingsVisuals {
 
     private volatile AbstractHorse horse;
     private volatile int handMask;
+    private boolean reseedPending;
     private boolean mainOnLeftSlot;
     private Vector3dc mainPos;
     private Vector3dc offPos;
@@ -96,6 +97,10 @@ public final class HorseRingsVisuals {
         return renderedOnce ? renderPts : null;
     }
 
+    public void markReseedPending() {
+        reseedPending = true;
+    }
+
     public void tick(AbstractHorse horse, boolean mainFree, boolean offFree, Vector3dc mainPos, Vector3dc offPos) {
         int mask = (mainFree ? 1 : 0) | (offFree ? 2 : 0);
         if (mask == 0) {
@@ -103,7 +108,7 @@ public final class HorseRingsVisuals {
             return;
         }
 
-        boolean reseed = active != this || mask != handMask;
+        boolean reseed = active != this || mask != handMask || reseedPending;
         this.horse = horse;
         this.handMask = mask;
         // Null unusable pose samples
@@ -130,6 +135,7 @@ public final class HorseRingsVisuals {
         handPin(false, handR);
 
         if (reseed) {
+            reseedPending = false;
             if (mask == 3 && this.mainPos != null && this.offPos != null) {
                 mainOnLeftSlot = isMainOnLeft(horse, this.mainPos, this.offPos);
             }
@@ -209,6 +215,7 @@ public final class HorseRingsVisuals {
         }
         horse = null;
         handMask = 0;
+        reseedPending = false;
         renderedOnce = false;
     }
 

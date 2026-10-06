@@ -157,6 +157,13 @@ public final class VRAbstraction {
         return Impl.applyRidingRoomLock(window);
     }
 
+    // Snaps the VR view yaw to the given world yaw (mount centering, roomscale and seated)
+    public static void centerViewOn(float yawDeg) {
+        if (VivecraftGate.isVivecraftPresent()) {
+            Impl.centerViewOn(yawDeg);
+        }
+    }
+
     // Only loaded when Vivecraft is around
     private static final class Impl {
 
@@ -302,6 +309,34 @@ public final class VRAbstraction {
                 dh.vehicleTracker.Premount_Pos_Room = new Vec3(anchor.x + dx * excess, 0.0, anchor.z + dz * excess);
             }
             return dist;
+        }
+
+        // Mount snap without vehicleRotation setting (pivots the room around the head and Premount_Pos_Room rotates along so the hands stay centered)
+        static void centerViewOn(float yawDeg) {
+            ClientDataHolderVR dh = ClientDataHolderVR.getInstance();
+            if (!VRClientAPI.instance().isVRActive() || dh.vrPlayer == null
+                    || dh.vrPlayer.vrdata_world_pre == null || dh.vrPlayer.vrdata_room_pre == null
+                    || dh.vr == null) {
+                return;
+            }
+            float hmdYaw = dh.vrPlayer.vrdata_world_pre.hmd.getYaw();
+            float difference = dh.vrPlayer.rotDiff_Degrees(yawDeg, hmdYaw);
+            if (Math.abs(difference) < 0.5F) {
+                return;
+            }
+            float newRotation = (float) (Math.toDegrees(dh.vrPlayer.vrdata_world_pre.rotation_radians)
+                    + difference) % 360.0F;
+            Vec3 headRoom = dh.vrPlayer.vrdata_room_pre.getHeadPivot();
+            Vec3 anchor = dh.vehicleTracker.Premount_Pos_Room;
+            Vec3 rotated = new Vec3(anchor.x - headRoom.x, 0.0, anchor.z - headRoom.z)
+                    .yRot((float) Math.toRadians(-difference));
+            dh.vehicleTracker.Premount_Pos_Room = new Vec3(headRoom.x + rotated.x, 0.0, headRoom.z + rotated.z);
+            Vec3 headWorld = dh.vrPlayer.vrdata_world_pre.getHeadPivot();
+            Vec3 headRot = new Vec3(headRoom.x, 0.0, headRoom.z).yRot((float) Math.toRadians(newRotation));
+            dh.vrPlayer.setRoomOrigin(headWorld.x - headRot.x, headWorld.y - headRoom.y,
+                    headWorld.z - headRot.z, false);
+            dh.vrSettings.worldRotation = newRotation;
+            dh.vr.seatedRot = newRotation;
         }
 
         @Nullable
