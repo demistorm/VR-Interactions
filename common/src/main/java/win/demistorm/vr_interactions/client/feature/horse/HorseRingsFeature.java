@@ -4,8 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -17,10 +19,15 @@ import win.demistorm.vr_interactions.client.interaction.AmbientChecker;
 import win.demistorm.vr_interactions.client.interaction.Hand;
 import win.demistorm.vr_interactions.client.interaction.TickContext;
 
+import java.util.Set;
+
 // Gates horse logic and applies commands to the ridden horse
 public final class HorseRingsFeature implements AmbientChecker {
 
     private static final Logger log = LoggerFactory.getLogger(HorseRingsFeature.class);
+
+    // Items that need both hands in VR, holding one occupies both
+    private static final Set<Item> TWO_HANDED_ITEMS = Set.of(Items.BOW);
 
     private static volatile RideCommand command = RideCommand.INACTIVE;
     private static volatile AbstractHorse trackedHorse = null;
@@ -77,7 +84,11 @@ public final class HorseRingsFeature implements AmbientChecker {
         }
 
         boolean mainFree = player.getMainHandItem().isEmpty();
-        boolean offFree = player.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty();
+        boolean offFree = player.getOffhandItem().isEmpty();
+        if (isTwoHanded(player.getMainHandItem()) || isTwoHanded(player.getOffhandItem())) {
+            mainFree = false;
+            offFree = false;
+        }
         int activeHands = (mainFree ? 1 : 0) + (offFree ? 1 : 0);
 
         Float headYaw = VRAbstraction.getHeadYaw(player);
@@ -255,6 +266,10 @@ public final class HorseRingsFeature implements AmbientChecker {
             return main.add(off, new Vector3d()).mul(0.5);
         }
         return mainFree ? main : off;
+    }
+
+    private static boolean isTwoHanded(ItemStack stack) {
+        return TWO_HANDED_ITEMS.contains(stack.getItem());
     }
 
     private static Vector3dc toVector(Vec3 vec) {
