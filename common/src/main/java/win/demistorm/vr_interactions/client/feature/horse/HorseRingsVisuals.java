@@ -1,17 +1,29 @@
 package win.demistorm.vr_interactions.client.feature.horse;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import win.demistorm.vr_interactions.client.VRAbstraction;
 import win.demistorm.vr_interactions.client.visual.RopeBox;
 import win.demistorm.vr_interactions.client.visual.VerletRope;
 
 // Reins loop running mouth to hand to hand to mouth (simulated in the horse's local frame so moving/turns don't fling the rope)
 public final class HorseRingsVisuals {
 
-    private static volatile HorseRingsVisuals active;
+    // Every engaged sim, local and remote, the rope renderer iterates this each frame
+    private static final List<HorseRingsVisuals> allSims = new CopyOnWriteArrayList<>();
+    private static HorseRingsVisuals localSim;
 
     private final VerletRope rope;
     private final HorseGeometry geometry = new HorseGeometry();
@@ -21,6 +33,9 @@ public final class HorseRingsVisuals {
     private final int handRIndex;
 
     private volatile AbstractHorse horse;
+    private final boolean remote;
+    private boolean engaged;
+    private boolean scanMatched;
     private volatile int handMask;
     private boolean reseedPending;
     private boolean mainOnLeftSlot;
@@ -41,10 +56,22 @@ public final class HorseRingsVisuals {
     private static long nextOutlierWarnNanos;
 
     public static HorseRingsVisuals active() {
-        return active;
+        return localSim != null && localSim.engaged ? localSim : null;
+    }
+
+    public static List<HorseRingsVisuals> all() {
+        return allSims;
     }
 
     public HorseRingsVisuals() {
+        this(false);
+    }
+
+    private HorseRingsVisuals(boolean remote) {
+        this.remote = remote;
+        if (!remote) {
+            localSim = this;
+        }
         int rein = HorseRingsTuning.REIN_SEGMENTS;
         int bridge = HorseRingsTuning.BRIDGE_SEGMENTS;
         int points = 2 * rein + bridge + 1;
@@ -108,7 +135,7 @@ public final class HorseRingsVisuals {
             return;
         }
 
-        boolean reseed = active != this || mask != handMask || reseedPending;
+        boolean reseed = !engaged || mask != handMask || reseedPending;
         this.horse = horse;
         this.handMask = mask;
         // Null unusable pose samples
@@ -142,7 +169,7 @@ public final class HorseRingsVisuals {
             if (!reseed(mouthL, mouthR, handL, handR, mask)) {
                 return;
             }
-            active = this;
+            engage();
         }
 
         rope.beginTick();
@@ -210,17 +237,26 @@ public final class HorseRingsVisuals {
     }
 
     public void deactivate() {
-        if (active == this) {
-            active = null;
+        if (engaged) {
+            engaged = false;
+            allSims.remove(this);
         }
+        scanMatched = false;
         horse = null;
         handMask = 0;
         reseedPending = false;
         renderedOnce = false;
     }
 
+    private void engage() {
+        if (!engaged) {
+            engaged = true;
+            allSims.add(this);
+        }
+    }
+
     public boolean renderTick(float rawAlpha) {
-        if (active != this || horse == null || !renderedOnce) {
+        if (!engaged || horse == null || !renderedOnce) {
             return false;
         }
         float alpha = rawAlpha;
@@ -373,5 +409,69 @@ public final class HorseRingsVisuals {
         double dy = a[1] - b[1];
         double dz = a[2] - b[2];
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    // Remove vanilla reins while riding horse
+    public static boolean hideVanillaReins(AbstractHorse horse) {
+        return horse.getControllingPassenger() instanceof Player player && VRAbstraction.isVRPlayer(player);
+    }
+
+    // Adds sims for other players on VR server
+    public static void tickRemote() {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            for (HorseRingsVisuals sim : allSims) {
+                if (sim.remote) {
+                    sim.deactivate();
+                }
+            }
+            return;
+        }
+        for (HorseRingsVisuals sim : allSims) {
+            sim.scanMatched = false;
+        }
+        for (Player player : level.players()) {
+            if (player.isLocalPlayer()
+                    || !(player.getVehicle() instanceof AbstractHorse horse)
+                    || !horse.isSaddled()
+                    || horse.getControllingPassenger() != player
+                    || !VRAbstraction.isVRPlayer(player)) {
+                continue;
+            }
+            boolean mainFree = player.getMainHandItem().isEmpty();
+            boolean offFree = player.getOffhandItem().isEmpty();
+            if (!mainFree && !offFree) {
+                continue;
+            }
+            HorseRingsVisuals sim = remoteSimFor(horse);
+            if (sim == null) {
+                sim = new HorseRingsVisuals(true);
+            }
+            sim.scanMatched = true;
+            sim.tick(horse, mainFree, offFree,
+                    mainFree ? handPos(player, InteractionHand.MAIN_HAND) : null,
+                    offFree ? handPos(player, InteractionHand.OFF_HAND) : null);
+        }
+        for (HorseRingsVisuals sim : allSims) {
+            if (sim.remote && !sim.scanMatched) {
+                sim.deactivate();
+            }
+        }
+    }
+
+    @Nullable
+    private static HorseRingsVisuals remoteSimFor(AbstractHorse horse) {
+        for (HorseRingsVisuals sim : allSims) {
+            if (sim.remote && sim.horse == horse) {
+                return sim;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Vector3dc handPos(Player player, InteractionHand hand) {
+        Vec3 pos = VRAbstraction.getHandPos(player, hand);
+        return pos == null ? null : new Vector3d(pos.x, pos.y, pos.z);
     }
 }

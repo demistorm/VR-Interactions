@@ -6,6 +6,9 @@
   "mixins": [],
   "client": [
     "AbstractHorseMixin",
+    "AbstractHorseRendererMixin",
+    "EquineRenderStateMixin",
+    "EquineSaddleModelMixin",
     "KeyMappingMixin",
     "LevelRendererMixin",
     "LocalPlayerMixin"

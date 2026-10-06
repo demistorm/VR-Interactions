@@ -1,6 +1,7 @@
 package win.demistorm.vr_interactions.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -49,28 +50,29 @@ public final class HorseRopeRenderer {
     private HorseRopeRenderer() {}
 
     public static void render(Vec3 cameraPos, MultiBufferSource.BufferSource buffers) {
-        HorseRingsVisuals visuals = HorseRingsVisuals.active();
-        if (visuals == null || visuals.horse() == null) {
+        List<HorseRingsVisuals> sims = HorseRingsVisuals.all();
+        if (sims.isEmpty()) {
             return;
         }
         float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        if (!visuals.renderTick(partialTick)) {
-            return;
+        for (HorseRingsVisuals visuals : sims) {
+            if (visuals.horse() == null || !visuals.renderTick(partialTick)) {
+                continue;
+            }
+            double[] solverPts = visuals.renderPoints();
+            int count = solverPts.length / 3;
+            if (count < 4) {
+                continue;
+            }
+            if (!loggedVersion) {
+                log.info("Horse rein rope renderer {} drawing", VERSION);
+                loggedVersion = true;
+            }
+            if (buildRings(solverPts, count)) {
+                gateRings(visuals, partialTick);
+                emitTube(buffers, cameraPos);
+            }
         }
-        double[] solverPts = visuals.renderPoints();
-        int count = solverPts.length / 3;
-        if (count < 4) {
-            return;
-        }
-        if (!loggedVersion) {
-            log.info("Horse rein rope renderer {} drawing", VERSION);
-            loggedVersion = true;
-        }
-        if (!buildRings(solverPts, count)) {
-            return;
-        }
-        gateRings(visuals, partialTick);
-        emitTube(buffers, cameraPos);
     }
 
     // Resamples the solver chain through a spline

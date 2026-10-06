@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import win.demistorm.vr_interactions.Platform;
 import win.demistorm.vr_interactions.VRInteractions;
 import win.demistorm.vr_interactions.client.feature.horse.HorseRingsFeature;
+import win.demistorm.vr_interactions.client.feature.horse.HorseRingsVisuals;
 import win.demistorm.vr_interactions.client.input.InputStealer;
 import win.demistorm.vr_interactions.client.interaction.InteractionManager;
 import win.demistorm.vr_interactions.client.keybind.InteractBindings;
@@ -23,6 +24,7 @@ public class VRInteractionsClient {
         if (VRAbstraction.isVRAvailable()) {
             log.info("Vivecraft detected, VR active: {}", VRAbstraction.isVRActive());
             ViveTracker.register();
+            Platform.registerClientTickEvent(HorseRingsVisuals::tickRemote);
             InteractBindings.setOffhandFallback(VivecraftInput::offhandTriggerDown);
             InputStealer.setTeleportKeys(VivecraftInput::teleportKeys);
         } else {
