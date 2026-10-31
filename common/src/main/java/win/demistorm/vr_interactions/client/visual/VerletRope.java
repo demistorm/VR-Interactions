@@ -8,6 +8,7 @@ public final class VerletRope {
 
     private final double[] restLen;
     private final double collisionRadius;
+    private final double endNoCollide;
     private final double[] cur;
     private final double[] prev;
 
@@ -18,11 +19,12 @@ public final class VerletRope {
     private final double[] pinY;
     private final double[] pinZ;
 
-    public VerletRope(int pointCount, double segmentLength, double collisionRadius) {
+    public VerletRope(int pointCount, double segmentLength, double collisionRadius, double endNoCollide) {
         this.pointCount = pointCount;
         this.restLen = new double[pointCount - 1];
         Arrays.fill(restLen, segmentLength);
         this.collisionRadius = collisionRadius;
+        this.endNoCollide = endNoCollide;
         this.cur = new double[pointCount * 3];
         this.prev = new double[pointCount * 3];
         this.tickStart = new double[pointCount * 3];
@@ -95,8 +97,11 @@ public final class VerletRope {
             cur[i + 2] += vz;
             cur[i + 1] += gravityY * dtSq;
         }
+        // Points within this rope length of of the rein anchors skip collision
+        int skipL = endSkipCount(endNoCollide, restLen[0]);
+        int skipR = endSkipCount(endNoCollide, restLen[pointCount - 2]);
         for (int s = 0; s < substeps; s++) {
-            solve(cur, iterations, boxes, s == substeps - 1 ? friction : 0.0);
+            solve(cur, iterations, boxes, s == substeps - 1 ? friction : 0.0, skipL, skipR);
         }
         clampImpliedVelocity(maxSpeed);
     }
@@ -127,13 +132,20 @@ public final class VerletRope {
         }
     }
 
-    private void solve(double[] pts, int iterations, RopeBox[] boxes, double friction) {
+    private void solve(double[] pts, int iterations, RopeBox[] boxes, double friction, int skipL, int skipR) {
         for (int it = 0; it < iterations; it++) {
             applyPins(pts);
             relaxSegments(pts);
-            collide(pts, boxes, it == iterations - 1 ? friction : 0.0);
+            collide(pts, boxes, it == iterations - 1 ? friction : 0.0, skipL, skipR);
         }
         applyPins(pts);
+    }
+
+    private int endSkipCount(double blocks, double restLen) {
+        if (blocks <= 0.0) {
+            return 0;
+        }
+        return Math.min(Math.max((int) Math.ceil(blocks / restLen), 1), pointCount / 4);
     }
 
     private void applyPins(double[] pts) {
@@ -191,9 +203,9 @@ public final class VerletRope {
         }
     }
 
-    private void collide(double[] pts, RopeBox[] boxes, double friction) {
+    private void collide(double[] pts, RopeBox[] boxes, double friction, int skipL, int skipR) {
         for (int p = 0; p < pointCount; p++) {
-            if (pinned[p]) {
+            if (pinned[p] || p <= skipL || p >= pointCount - 1 - skipR) {
                 continue;
             }
             int i = p * 3;

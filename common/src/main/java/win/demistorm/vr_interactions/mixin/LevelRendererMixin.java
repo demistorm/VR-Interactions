@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import win.demistorm.vr_interactions.client.feature.horse.RenderedEquineContext;
 import win.demistorm.vr_interactions.client.render.HorseRopeRenderer;
 
 // Horse rein rope world rendering
@@ -21,6 +22,12 @@ public abstract class LevelRendererMixin {
     @Shadow
     @Final
     private RenderBuffers renderBuffers;
+
+    @Inject(method = "submitEntities", at = @At("HEAD"))
+    private void vr_interactions$beginEquineFrame(PoseStack poseStack, LevelRenderState levelRenderState,
+                                                   SubmitNodeCollector submitNodeCollector, CallbackInfo ci) {
+        RenderedEquineContext.newFrame();
+    }
 
     @Inject(method = "submitEntities", at = @At("TAIL"))
     private void vr_interactions$renderHorseRope(PoseStack poseStack, LevelRenderState levelRenderState,

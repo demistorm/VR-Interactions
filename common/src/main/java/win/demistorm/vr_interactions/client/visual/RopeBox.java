@@ -1,5 +1,7 @@
 package win.demistorm.vr_interactions.client.visual;
 
+import org.joml.Vector3fc;
+
 // Box collider for VerletRope
 public final class RopeBox {
     public final double cx;
@@ -38,5 +40,9 @@ public final class RopeBox {
         this.hx = hx;
         this.hy = hy;
         this.hz = hz;
+    }
+
+    public RopeBox(double cx, double cy, double cz, Vector3fc u, Vector3fc v, Vector3fc s, double hx, double hy, double hz) {
+        this(cx, cy, cz, u.x(), u.y(), u.z(), v.x(), v.y(), v.z(), s.x(), s.y(), s.z(), hx, hy, hz);
     }
 }

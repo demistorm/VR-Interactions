@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import win.demistorm.vr_interactions.client.feature.horse.SaddleReinsHider;
+import win.demistorm.vr_interactions.client.feature.horse.ReinsRenderState;
 
 // ridingParts are the vanilla rein lines (vanilla writes their isRidden visibility right before)
 @Mixin(EquineSaddleModel.class)
@@ -21,7 +21,7 @@ public abstract class EquineSaddleModelMixin {
 
     @Inject(method = "setupAnim", at = @At("TAIL"))
     private void vr_interactions$hideReinLines(EquineRenderState state, CallbackInfo ci) {
-        if (((SaddleReinsHider) state).vr_interactions$hideSaddleReins()) {
+        if (((ReinsRenderState) state).vr_interactions$hideSaddleReins()) {
             for (ModelPart part : ridingParts) {
                 part.visible = false;
             }

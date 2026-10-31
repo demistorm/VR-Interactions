@@ -42,8 +42,7 @@ public final class HorseRingsDebugRenderer {
                 + (cmd.turnEngaged() ? " TURN" : cmd.sustainRemaining() > 0 ? " arm=" + cmd.sustainRemaining() : "")
                 + (cmd.stopRampRemaining() > 0 ? " stop=" + cmd.stopRampRemaining() : "")
                 + (cmd.jumpFired() ? " JUMP" : cmd.jumpPending() > 0 ? " jmp=" + cmd.jumpPending() : "")
-                + (cmd.activeHands() == 0 ? " decay=" + cmd.decayTicksRemaining() : "")
-                + " rope=" + HorseRopeRenderer.VERSION;
+                + (cmd.activeHands() == 0 ? " decay=" + cmd.decayTicksRemaining() : "");
 
         Gizmos.billboardText(line1, billboardPos, TextGizmo.Style.forColorAndCentered(stateColor).withScale(0.35f))
                 .setAlwaysOnTop();
@@ -70,6 +69,7 @@ public final class HorseRingsDebugRenderer {
                 drawBoxEdges(boxes[i], colors[i % colors.length]);
             }
         }
+        drawAnchorCross(visuals.debugLeash(), 0xFFFF22FF);
         drawAnchorCross(visuals.debugMouthL(), 0xFFFFFF22);
         drawAnchorCross(visuals.debugMouthR(), 0xFFFFFF22);
 

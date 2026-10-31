@@ -185,7 +185,6 @@ public final class HorseRingsLogic {
     }
 
     // Sustained lateral offset past the threshold turns until offset returns inside the disengage window
-    // (a rapid reengage does not trigger sustain so weaving feels fluid)
     private double tickSteering(double lat) {
         lastLateral = lat;
         double absLat = Math.abs(lat);

@@ -21,8 +21,6 @@ import win.demistorm.vr_interactions.client.feature.horse.HorseRingsVisuals;
 // Draw the reins as a textured 4-sided tube through a Catmull-Rom resample of the solver chain
 public final class HorseRopeRenderer {
 
-    public static final String VERSION = "v4";
-
     private static final Logger log = LoggerFactory.getLogger(HorseRopeRenderer.class);
 
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("vr_interactions",
@@ -43,7 +41,6 @@ public final class HorseRopeRenderer {
     private static float[] sinT = new float[0];
     private static int ringCount;
     private static boolean built;
-    private static boolean loggedVersion;
     private static long nextGateLogNanos;
     private static int lightSample = 0xF000F0;
 
@@ -63,10 +60,6 @@ public final class HorseRopeRenderer {
             int count = solverPts.length / 3;
             if (count < 4) {
                 continue;
-            }
-            if (!loggedVersion) {
-                log.info("Horse rein rope renderer {} drawing", VERSION);
-                loggedVersion = true;
             }
             if (buildRings(solverPts, count)) {
                 gateRings(visuals, partialTick);

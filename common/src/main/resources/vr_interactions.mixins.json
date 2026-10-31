@@ -11,7 +11,9 @@
     "EquineSaddleModelMixin",
     "KeyMappingMixin",
     "LevelRendererMixin",
-    "LocalPlayerMixin"
+    "LocalPlayerMixin",
+    "ModelFeatureRendererMixin",
+    "ModelPartAccessor"
   ],
   "server": [],
   "injectors": {

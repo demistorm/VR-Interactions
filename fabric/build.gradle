@@ -73,6 +73,9 @@ dependencies {
     // Dev runtime additions
     modLocalRuntime "maven.modrinth:modmenu:${rootProject.modmenu_version}"
     modLocalRuntime "maven.modrinth:sodium:${rootProject.sodium_version}"
+    // EMF/ETF for testing model pack compat (FA, etc)
+    modLocalRuntime "maven.modrinth:entity-model-features:3.3.11-fabric-1.21.11"
+    modLocalRuntime "maven.modrinth:entitytexturefeatures:7.2.5-fabric-1.21.11"
 }
 
 // Extra repos for Vivecraft's dev-time deps (bhaptics lives on jitpack)

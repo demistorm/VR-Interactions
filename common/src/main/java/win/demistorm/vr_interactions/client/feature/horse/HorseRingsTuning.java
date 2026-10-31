@@ -1,6 +1,6 @@
 package win.demistorm.vr_interactions.client.feature.horse;
 
-// All horse rings threshold tuneables in one place for convenience
+// All horse rings threshold tuneables in one place for convenience (may hardcore some of these later)
 public final class HorseRingsTuning {
 
     // Steering
@@ -64,8 +64,9 @@ public final class HorseRingsTuning {
     public static final int ROPE_SUBSTEPS = 5;                  // Improves collision recovery
     public static final int ROPE_ITERATIONS = 5;                // Relaxation passes per solve repeat
     public static final double ROPE_FRICTION = 0.15;            // Friction on collision contact
-    public static final double ROPE_RADIUS = 0.07;              // Collision radius around each sim point
-    public static final double ROPE_RENDER_RADIUS = 0.025;      // Rendered tube radius in blocks
+    public static final double ROPE_RADIUS = 0.05;              // Collision radius around each sim point
+    public static final double ROPE_END_NO_COLLIDE = 0.15;      // Collision-free rope length from the rein anchors (only tested with horses as of a3)
+    public static final double ROPE_RENDER_RADIUS = 0.03;       // Rendered tube radius in blocks
     public static final int ROPE_SIDES = 4;                     // Cross-section sides of the rendered tube (4 = square)
     public static final int ROPE_SPLINE_SUBDIV = 4;             // Spline rings per sim bit (visually looks nicer)
     public static final double ROPE_TEX_REPEAT_BLOCKS = 0.14;   // Rope length per full texture tile
@@ -73,4 +74,9 @@ public final class HorseRingsTuning {
     public static final double SEED_SAG = 0.25;                 // Reseed default sag point before sim takes over
     public static final double SEED_LATERAL_PUSH = 0.5;         // Reseed lateral push of reins on either side of neck to avoid halves appearing on a single side of the neck
     public static final double SEED_BRIDGE_SAG = 0.30;          // Reseed default sag for bridge before sim takes over
+
+    // Rein anchors (anchor point is model's leash point, these are offsets from there to look kinda correct in-world)
+    public static final double ANCHOR_FORWARD = 0.45;           // Blocks forward of the leash point toward the mouth
+    public static final double ANCHOR_UP = -0.20;               // Blocks above the leash point
+    public static final double ANCHOR_SPREAD = 0.06;            // Lateral distance of each rope end from center
 }

@@ -2,11 +2,10 @@ package win.demistorm.vr_interactions.client.interaction;
 
 import java.util.List;
 
-// A zone-based interaction feature
-// Publishes zones each tick, gets interact events when one of its zones wins a hand
+// A zone-based interaction feature, publishes zones each tick and gets interact events when a hand enters one
 public interface Interaction {
 
-    // NONE: zones are purely spatial, no interact callbacks (presence-only features)
+    // NONE: zones are spatial, no interact callbacks (presence-only features like raised arm blocking for instance)
     // PRESS: onInteract fires once per press inside a zone
     // HOLD: full lifecycle (press, hold, release)
     enum InputMode { NONE, PRESS, HOLD }
@@ -30,8 +29,7 @@ public interface Interaction {
     // Zones this interaction offers this tick, may be empty
     List<InteractZone> zones(TickContext ctx);
 
-    // HOLD: called when the interact key is pressed while a hand is inside one of this interaction's zones
-    // PRESS: called once per press, no session lifecycle afterwards
+    // Called when the interact key is pressed inside a zone (PRESS gets no session afterwards)
     void onInteract(TickContext ctx, InteractSession session);
 
     // HOLD only: called every tick while the key stays held

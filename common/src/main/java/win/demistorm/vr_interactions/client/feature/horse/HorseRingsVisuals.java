@@ -3,6 +3,7 @@ package win.demistorm.vr_interactions.client.feature.horse;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -47,7 +48,7 @@ public final class HorseRingsVisuals {
     private double frameZ;
     private double frameCos;
     private double frameSin;
-    private RopeBox[] localBoxes = new RopeBox[0];
+    private RopeBox[] debugWorldBoxes = new RopeBox[0];
     private static final double PIN_SANITY_BLOCKS = 8.0;
 
     private static final Logger log = LoggerFactory.getLogger(HorseRingsVisuals.class);
@@ -61,6 +62,16 @@ public final class HorseRingsVisuals {
 
     public static List<HorseRingsVisuals> all() {
         return allSims;
+    }
+
+    public static void captureLive(int horseId, ModelPart root) {
+        for (HorseRingsVisuals sim : allSims) {
+            AbstractHorse h = sim.horse;
+            if (sim.engaged && h != null && h.getId() == horseId) {
+                sim.geometry.captureModel(root);
+                return;
+            }
+        }
     }
 
     public HorseRingsVisuals() {
@@ -78,7 +89,7 @@ public final class HorseRingsVisuals {
         this.handLIndex = rein;
         this.handRIndex = rein + bridge;
         this.rope = new VerletRope(points, HorseRingsTuning.ROPE_TOTAL_LENGTH / (points - 1),
-                HorseRingsTuning.ROPE_RADIUS);
+                HorseRingsTuning.ROPE_RADIUS, HorseRingsTuning.ROPE_END_NO_COLLIDE);
         this.renderPts = new double[points * 3];
         this.localRenderPts = new double[points * 3];
     }
@@ -112,12 +123,31 @@ public final class HorseRingsVisuals {
         return geometry.mouthR;
     }
 
+    public double[] debugLeash() {
+        return geometry.leashBase;
+    }
+
     public RopeBox[] debugBoxes() {
-        return geometry.boxes;
+        RopeBox[] src = geometry.localBoxes;
+        if (debugWorldBoxes.length < src.length) {
+            debugWorldBoxes = new RopeBox[src.length];
+        }
+        for (int i = 0; i < src.length; i++) {
+            RopeBox b = src[i];
+            debugWorldBoxes[i] = b == null ? null : new RopeBox(
+                    frameX + b.cx * frameCos - b.cz * frameSin,
+                    frameY + b.cy,
+                    frameZ + b.cx * frameSin + b.cz * frameCos,
+                    b.ux * frameCos - b.uz * frameSin, b.uy, b.ux * frameSin + b.uz * frameCos,
+                    b.vx * frameCos - b.vz * frameSin, b.vy, b.vx * frameSin + b.vz * frameCos,
+                    b.wx * frameCos - b.wz * frameSin, b.wy, b.wx * frameSin + b.wz * frameCos,
+                    b.hx, b.hy, b.hz);
+        }
+        return debugWorldBoxes;
     }
 
     public String debugRopeStats() {
-        return rope.debugStats(localBoxes);
+        return rope.debugStats(geometry.localBoxes);
     }
 
     public double[] debugRopePoints() {
@@ -142,7 +172,7 @@ public final class HorseRingsVisuals {
         this.mainPos = sanePose(mainPos) ? mainPos : null;
         this.offPos = sanePose(offPos) ? offPos : null;
 
-        // Anchor on the horse's previous tick pose to match the frame pre-tick VR hand data was captured in (newer pins the hands a full tick behind in local space)
+        // Anchors on the horse's previous tick pose to match the frame the pre-tick hand data came from
         double yawRad = Math.toRadians(horse.yBodyRotO);
         frameX = horse.xo;
         frameY = horse.yo;
@@ -152,10 +182,7 @@ public final class HorseRingsVisuals {
 
         double[] mouthL = new double[3];
         double[] mouthR = new double[3];
-        if (!geometry.mouthAnchors(horse, 0.0f, mouthL, mouthR)) {
-            deactivate();
-            return;
-        }
+        geometry.mouthAnchors(horse, 0.0f, mouthL, mouthR);
         double[] handL = new double[3];
         double[] handR = new double[3];
         handPin(true, handL);
@@ -187,14 +214,10 @@ public final class HorseRingsVisuals {
             setLocalPin(rope.pointCount() - 1, mouthR);
         }
 
-        if (!geometry.buildBoxes(horse, 0.0f)) {
-            deactivate();
-            return;
-        }
-        toLocalBoxes();
+        // Collision boxes come from the last live capture (see captureLive)
         rope.step(1.0, -HorseRingsTuning.ROPE_GRAVITY, HorseRingsTuning.ROPE_DAMPING,
                 HorseRingsTuning.ROPE_MAX_SPEED, HorseRingsTuning.ROPE_SUBSTEPS, HorseRingsTuning.ROPE_ITERATIONS,
-                localBoxes, HorseRingsTuning.ROPE_FRICTION);
+                geometry.localBoxes, HorseRingsTuning.ROPE_FRICTION);
         renderedOnce = true;
         String outliers = rope.debugOutliers(PIN_SANITY_BLOCKS);
         if (outliers != null) {
@@ -215,25 +238,6 @@ public final class HorseRingsVisuals {
         double dy = world[1] - frameY;
         double dz = world[2] - frameZ;
         return new double[] {dx * frameCos + dz * frameSin, dy, -dx * frameSin + dz * frameCos};
-    }
-
-    // Sim copy of the collision boxes in horse's local space (geometry keeps the world copy for debug)
-    private void toLocalBoxes() {
-        RopeBox[] src = geometry.boxes;
-        if (localBoxes.length < src.length) {
-            localBoxes = new RopeBox[src.length];
-        }
-        for (int i = 0; i < src.length; i++) {
-            RopeBox b = src[i];
-            localBoxes[i] = b == null ? null : new RopeBox(
-                    (b.cx - frameX) * frameCos + (b.cz - frameZ) * frameSin,
-                    b.cy - frameY,
-                    -(b.cx - frameX) * frameSin + (b.cz - frameZ) * frameCos,
-                    b.ux * frameCos + b.uz * frameSin, b.uy, -(b.ux * frameSin) + b.uz * frameCos,
-                    b.vx * frameCos + b.vz * frameSin, b.vy, -(b.vx * frameSin) + b.vz * frameCos,
-                    b.wx * frameCos + b.wz * frameSin, b.wy, -(b.wx * frameSin) + b.wz * frameCos,
-                    b.hx, b.hy, b.hz);
-        }
     }
 
     public void deactivate() {
@@ -335,8 +339,8 @@ public final class HorseRingsVisuals {
         long now = System.nanoTime();
         if (now - lastReseedLogNanos > 1_000_000_000L) {
             lastReseedLogNanos = now;
-            log.info("Rein reseed anchors: mouthL={} handL={} handR={} mouthR={} spans L={} bridge={} R={}",
-                    fmt(mouthL), fmt(handL), fmt(handR), fmt(mouthR),
+            log.info("Rein reseed leash={} anchors: mouthL={} handL={} handR={} mouthR={} spans L={} bridge={} R={}",
+                    fmt(geometry.leashBase), fmt(mouthL), fmt(handL), fmt(handR), fmt(mouthR),
                     String.format("%.2f", span(mouthL, handL)),
                     String.format("%.2f", span(handL, handR)),
                     String.format("%.2f", span(handR, mouthR)));

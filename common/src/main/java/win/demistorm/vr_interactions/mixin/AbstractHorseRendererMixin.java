@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import win.demistorm.vr_interactions.client.feature.horse.HorseRingsVisuals;
-import win.demistorm.vr_interactions.client.feature.horse.SaddleReinsHider;
+import win.demistorm.vr_interactions.client.feature.horse.ReinsRenderState;
 
 // Flags state every extract
 @Mixin(AbstractHorseRenderer.class)
@@ -17,6 +17,8 @@ public abstract class AbstractHorseRendererMixin {
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void vr_interactions$flagSaddleReins(AbstractHorse horse, EquineRenderState state, float partialTick,
                                                  CallbackInfo ci) {
-        ((SaddleReinsHider) state).vr_interactions$hideSaddleReins(HorseRingsVisuals.hideVanillaReins(horse));
+        ReinsRenderState extract = (ReinsRenderState) state;
+        extract.vr_interactions$hideSaddleReins(HorseRingsVisuals.hideVanillaReins(horse));
+        extract.vr_interactions$trackedHorseId(horse.getId());
     }
 }
